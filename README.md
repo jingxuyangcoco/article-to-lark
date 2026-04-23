@@ -43,24 +43,56 @@ The skill runs inside Claude Code. Install from https://claude.com/claude-code.
 
 ### 2. `lark-cli` (required)
 
-All Feishu operations go through `lark-cli`. This is the tool that creates docs, appends content, and uploads images.
+All Feishu operations go through **[lark-cli](https://github.com/larksuite/cli)** — the official command-line tool for Feishu/Lark open platform. This skill was developed against `lark-cli 1.0.13` or newer; earlier versions do not support `docs +media-insert` used by the interleave uploader.
+
+**Official repository:** https://github.com/larksuite/cli
+
+#### Install
+
+**macOS (Homebrew, recommended):**
 
 ```bash
-# Check if installed
-lark-cli --version   # expect 1.0.13 or newer
-
-# Install / upgrade — refer to your lark-cli provider's instructions
-# (this skill was developed against lark-cli 1.0.13)
+brew tap larksuite/cli https://github.com/larksuite/cli
+brew install lark-cli
 ```
+
+**From source (any platform with Go 1.21+):**
+
+```bash
+git clone https://github.com/larksuite/cli.git
+cd cli
+make install       # installs to $GOPATH/bin/lark-cli
+```
+
+**Pre-built binary:**
+
+Grab the latest release from https://github.com/larksuite/cli/releases, unzip, and put the binary somewhere on your `$PATH`.
+
+#### Verify
+
+```bash
+lark-cli --version   # expect 1.0.13 or newer
+lark-cli --help      # sanity check — lists docs/auth/drive/... subcommands
+```
+
+If `lark-cli: command not found`, check your `$PATH` — Homebrew installs to `/opt/homebrew/bin` (Apple Silicon) or `/usr/local/bin` (Intel); `go install` puts it under `$(go env GOPATH)/bin`.
 
 ### 3. `lark-cli` authentication (required)
 
-`lark-cli` must be logged in as a user with permission to create Feishu docs in their personal space. Follow your organization's `lark-cli` setup docs — typically:
+`lark-cli` must be logged in as a user with permission to create Feishu docs in their personal space. First-time setup (see [lark-cli README](https://github.com/larksuite/cli#getting-started) for the full flow):
 
 ```bash
-lark-cli auth login            # or similar — check `lark-cli auth --help`
-lark-cli api GET /open-apis/authen/v1/user_info   # verify token works
+# 1. Configure app credentials (app_id + app_secret from Feishu Open Platform)
+lark-cli config init
+
+# 2. User OAuth login — opens browser, asks you to authorize the app
+lark-cli auth login
+
+# 3. Verify token works — should return your user_info JSON
+lark-cli api GET /open-apis/authen/v1/user_info
 ```
+
+> If your organization distributes a pre-configured `lark-cli` build, follow the internal setup doc instead — the steps above are the upstream defaults.
 
 ### 4. Companion skills (required)
 
@@ -300,6 +332,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## Acknowledgements
 
-- Built on top of [`lark-cli`](https://github.com/larksuite) and Feishu Open Platform docx API.
+- Built on top of [`lark-cli`](https://github.com/larksuite/cli) and Feishu Open Platform docx API.
 - Article fetching powered by [Jina Reader](https://jina.ai/reader).
 - Developed as a [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills).
